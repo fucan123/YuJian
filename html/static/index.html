@@ -1,0 +1,419 @@
+<!Doctype html>
+<html xmlns=http://www.w3.org/1999/xhtml>
+<head>
+    <title>Web UI</title>
+    <meta charset="gb2312">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <link rel="stylesheet" href="./main.css">
+    <script src="../layui/layui.all.js"></script>
+    <script src="./main.js"></script>
+</head>
+<body>
+    <div id="test"></div>
+    <div id="full" style="display:none;position:absolute; background:#000000; z-index:998;width:100%;opacity:0.5;filter: alpha(opacity=50);"></div>
+    <div id="tips_box" class="tips_box"></div>
+    <div style="width:500px;margin:0 auto;">
+        <div id="more_data" class="more_data" style="display:none;position:absolute;z-index:999;">
+            <div class="layui-tab layui-tab-card" style="background:#ffffff;">
+                <div style="position:absolute;margin:10px 490px;z-index:999;">
+                    <a href="javascript:HideMoreData();" class="close"><i class="layui-icon">&#x1006;</i></a>
+                </div>
+                <ul class="layui-tab-title">
+                    <li class="layui-this">每日统计</li>
+                </ul>
+                <div class="layui-tab-content scrool_y" style="width:500px;height:450px;">
+                    <div class="layui-tab-item layui-show">
+                        <div id="date_num">
+                            <!--
+                            <div class="num"><span class="d">2020-01-01</span>通关次数: 3 <a href="javascript:ShowDataDetail(1);">详细</a></div>
+                            <div class="num"><span class="d">2020-01-01</span>通关次数: 3 <a href="javascript:ShowDataDetail(1);">详细</a></div>
+                            <div class="num"><span class="d">2020-01-01</span>通关次数: 3 <a href="javascript:ShowDataDetail(1);">详细</a></div>
+                            -->
+                        </div>
+                        <div id="date_detail" style="display:none;">
+                            <div>
+                                <a href="javascript:ShowDataDetail(0)" class="blue">返回</a>
+                                <span class="c0 b date">--</span>
+                                <span class="c6 fast">--</span>
+                                <span class="c9 slow">--</span>
+                                <span class="c0 avg">--</span>
+                            </div>
+                            <div id="date_detail_list" class="mt10">
+                                <!--
+                                <div class="detail">19时03分05秒 至 20时13分10秒 <span class="c0">用时:--</span></div>
+                                <div class="detail">19时03分05秒 至 20时13分10秒 <span class="c0">用时:--</span></div>
+                                <div class="detail">19时03分05秒 至 20时13分10秒 <span class="c0">用时:--</span></div>
+                                -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="width:500px;margin:0 auto;">
+        <div id="card_setting" class="setting_div" style="display:none;">
+            <ul class="setting_ul" style="min-height:130px;">
+                <li class="title">
+                    <i class="layui-icon">&#xe66e;</i> 请输入卡号
+                    <a href="javascript:HideSetting();" class="close" style="margin-left:330px;"><i class="layui-icon">&#x1006;</i></a>
+                </li>
+                <li style="margin-top:20px;">
+                    <input type="text" id="card_input" name="card_value" style="width:100%; height:26px; line-height:26px;" />
+                </li>
+            </ul>
+            <div class="r" style="padding:0 20px 20px;">
+                <!--layui-btn-primary 无背景按钮-->
+                <a class="yzbj" href="javascript:;" onclick="YZBJ(this);">移至本机</a>
+                <button id="card_btn" type="button" class="layui-btn layui-btn-normal layui-btn-sm" onclick="VerifyCard(this);">确定</button>
+            </div>
+        </div>
+        <div id="basic_setting" class="setting_div" style="display:none;">
+            <ul class="setting_ul">
+                <li class="title">
+                    <i class="layui-icon">&#xe620;</i> 基本设置
+                    <a href="javascript:HideSetting();" class="close"><i class="layui-icon">&#x1006;</i></a>
+                </li>
+                <li>
+                    <label>
+                        <span class="content">
+                            <input type="text" name="login_timeout" value="180" />
+                            <i>(多少秒后还未登录成功, 重新登录)</i>
+                        </span>
+                        <span class="title">登录超时 :</span>
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span class="content">
+                            <input type="text" name="fb_timeout" value="180" /> (分钟)
+                            <i>(刷副本时间超过此值时, 卡住才检测, 重开副本)</i>
+                        </span>
+                        <span class="title">副本超时 :</span>
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span class="content">
+                            <input type="text" name="qiazhu" value="30" />
+                            <i>(卡住多少秒后, 自动重新登录游戏)</i>
+                        </span>
+                        <span class="title">卡住重启 :</span>
+                    </label>
+                </li>
+                <li class="short_input">
+                    <label>
+                        <span class="content">
+                            <input type="text" name="shutdown_sh" />点<input type="text" name="shutdown_sm" />分
+                            <span class="ml5 red">至</span>
+                            <input type="text" name="shutdown_eh" class="ml5" />点<input type="text" name="shutdown_em" />分
+                            <i>(定时关机)</i>
+                        </span>
+                        <span class="title">定时关机 :</span>
+                    </label>
+                </li>
+                <li class="short_input">
+                    <label>
+                        <span class="content">
+                            <input type="text" name="offline_sh" />点<input type="text" name="offline_sm" />分
+                            <span class="ml5 red">至</span>
+                            <input type="text" name="offline_eh" class="ml5" />点<input type="text" name="offline_em" />分
+                            <i>(定时下线)</i>
+                        </span>
+                        <span class="title">定时下线 :</span>
+                    </label>
+                </li>
+                <li class="short_input">
+                    <label>
+                        <span class="content">
+                            <input type="text" name="autologin_sh" />点<input type="text" name="autologin_sm" />分
+                            <span class="ml5 red">至</span>
+                            <input type="text" name="autologin_eh" class="ml5" />点<input type="text" name="autologin_em" />分
+                            <i>(定时登录)</i>
+                        </span>
+                        <span class="title">定时登陆 :</span>
+                    </label>
+                </li>
+                <li>
+                    <label class="">
+                        <span class="content">
+                            <input type="checkbox" name="no_auto_select" class="checkbox" />
+                            <i>(不自动选择游戏区和登录游戏帐号)</i>
+                        </span>
+                        <span class="title">手动选区 :</span>
+                    </label>
+                </li>
+                <li>
+                    <label class="">
+                        <span class="content">
+                            <input type="checkbox" name="is_debug" class="checkbox" />
+                            <i>(是否显示调试信息, 即是否显示黑窗口)</i>
+                        </span>
+                        <span class="title">调试信息 :</span>
+                    </label>
+                </li>
+            </ul>
+            <div class="r" style="padding:0 20px 20px;">
+                <!--layui-btn-primary 无背景按钮-->
+                <button type="button" class="layui-btn layui-btn-normal layui-btn-sm" onclick="SaveSetting('basic_setting');">确定</button>
+                <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="HideSetting();">取消</button>
+            </div>
+        </div>
+        <div id="talk_setting" class="setting_div" style="display:none;">
+            <ul class="setting_ul">
+                <li class="title">
+                    <i class="layui-icon">&#xe620;</i> 喊话设置
+                    <a href="javascript:HideSetting();" class="close"><i class="layui-icon">&#x1006;</i></a>
+                </li>
+                <li>
+                    <label>
+                        <span class="content">
+                            <input type="text" name="talk_content" value="" data-string="1" style="width:350px;" />
+                            <i></i>
+                        </span>
+                        <span class="title">喊话内容 :</span>
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span class="content">
+                            <input type="text" name="talk_intval" value="120" />
+                            <i>(喊话间隔, 多少秒喊一次)</i>
+                        </span>
+                        <span class="title">喊话间隔 :</span>
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span class="content">
+                            <input type="checkbox" name="talk_open" class="checkbox" />
+                            <i>(是否开启自动喊话,如果在进游戏之前开启,那么不会执行副本流程)</i>
+                        </span>
+                        <span class="title">喊话开启 :</span>
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <span class="content">
+                            <select name="talk_type">
+                                <option value="1">公共频道</option>
+                            </select>
+                            <i>(在哪个频道喊话)</i>
+                        </span>
+                        <span class="title">喊话频道 :</span>
+                    </label>
+                </li>
+            </ul>
+            <div class="r" style="padding:0 20px 20px;">
+                <!--layui-btn-primary 无背景按钮-->
+                <button type="button" class="layui-btn layui-btn-normal layui-btn-sm" onclick="SaveSetting('talk_setting')">确定</button>
+                <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" onclick="HideSetting();">取消</button>
+            </div>
+        </div>
+    </div>
+    <ul id="table_1_menu" class="menu">
+        <li><i class="layui-icon">&#xe605;</i> 打开游戏</li>
+        <li><i class="layui-icon">&#x1006;</i> 关闭游戏</li>
+        <li style="border:0;"><i class="layui-icon">&#xe66c;</i> 已经入队</li>
+    </ul>
+    <div id="r_tool" class="r_tool"
+            onclick="ShowLog('log', 'r_tool', 'log_ul', 0)"
+            onmouseover="SetClass('r_tool', 'r_tool_hover', '')" onmouseout="SetClass('r_tool', 'r_tool', 'r_tool_hover')">
+        显<br />示<br /><i class="layui-icon">&#xe602;</i><br />日<br />记<br />
+    </div>
+    <div id="status" class="status">
+        <span id="status_text"></span>
+        <span style="float:right;margin-right:20px;">
+            <span>启动时间: </span>
+            <span id="start_time">0小时00分00秒</span>
+        </span>
+    </div>
+    <div id="log" class="log" data-visable="0">
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend class="fz14" style="color:#666666;">
+                <i class="layui-icon">&#xe702;</i> 日记信息
+                <span style="font-size:14px;color:red;">(<span id="fb_count_log">0/0</span>)</span>
+                <span id="step_file" style="font-size:14px;font-weight:normal;color:green;">文件</span>
+            </legend>
+        </fieldset>
+        <ul id="log_ul" class="log_ul scrool_y"></ul>
+    </div>
+    <main>
+        <div class="recharge">
+            <span class="ml5">
+                超时: <b id="fb_reopen_count" class="green">0</b>
+            </span>
+            <span class="ml5">
+                本次/累计: <b id="fb_count" class="red">0/0</b>
+            </span>
+            <a href="javascript:;" onclick="ShowSetting('card_setting', 150);" style="margin-left:20px;">输入卡号</a>
+            <span id="card_date" class="ml5 c9">未激活</span>
+        </div>
+        <div class="recharge mt10">
+            <a href="javascript:MoreData(500);" class="blue fz12" style="color:blue;">详细数据</a>
+            <!--启动时长:  <span id="start_time" class="c0">0小时00分00秒</span>，-->
+            本次时长:  <span id="fb_time_long" class="c0">0小时00分00秒</span>，
+            累计时长:  <span id="fb_time_long_all" class="c0">0小时00分00秒</span>
+        </div>
+        <fieldset class="layui-elem-field site-demo-button">
+            <legend class="fz14"><i class="layui-icon">&#xe66f;</i> 帐号列表</legend>
+            <div style="margin: 10px 10px 10px 10px;">
+                <table class="table">
+                    <colgroup>
+                        <col width="50" />
+                        <col width="250" />
+                        <col width="135" />
+                        <col width="135" />
+                        <col />
+                    </colgroup>
+                    <thead>
+                        <tr class="th">
+                            <th>序号</th>
+                            <th>帐号</th>
+                            <th>状态</th>
+                            <th>在线时长</th>
+                            <th>是否登录</th>
+                        </tr>
+                    </thead>
+                </table>
+                <div class="scrool_y" style="height:376px;">
+                    <table id="table_1" class="table">
+                        <colgroup>
+                            <col width="50" />
+                            <col width="250" />
+                            <col width="135" />
+                            <col width="135" />
+                            <col />
+                        </colgroup>
+                        <tbody>
+                            <!--<tr><td>1</td><td>贤心</td><td>2016-11-29</td> <td>人生就像是一场修行</td></tr>-->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </fieldset>
+        <!--<div class="h3 mt5"><i class="layui-icon">&#xe66f;</i>  帐号列表</div>-->
+
+        <fieldset class="layui-elem-field site-demo-button">
+            <legend class="fz14"><i class="layui-icon">&#xe620;</i> 设置</legend>
+            <div class="setting" id="setting_btn">
+                <a href="javascript:;" onclick="ShowSetting('basic_setting', 300);">基本设置</a> |
+                <!--<a href="javascript:;" onclick="ShowSetting('talk_setting', 300);">喊话设置</a> |-->
+                <a href="javascript:;" id="update_btn" class="update_btn" onclick="UpdateVer(this)">
+                    检查更新<i class="layui-icon">&#xe607;</i>
+                </a> |
+                <a href="javascript:;" id="step_btn" class="step_btn tips" onclick="UpdateStep(this)"
+                   data-text="会同步服务器上面的通用执行流程，但会覆盖现有的，你需要手动自己先备份好.">
+                    同步流程<i class="layui-icon">&#xe607;</i>
+                </a>
+            </div>
+            <div class="hr setting"></div>
+            <div class="setting_radio">
+                <span class="t">副本模式:</span>
+                <label class="ml10 tips" data-text="此模式，表示每个号登入刷副本之前会先领项链">
+                    <input type="radio" name="fb_mode" value="1" checked /> 边领边刷
+                </label>
+                <label class="ml10 tips" data-text="此模式，表示每个号只刷副本不领项链">
+                    <input type="radio" name="fb_mode" value="2" /> 不领只刷
+                </label>
+                <label class="ml10 tips" data-text="此模式，表示全部号先领完项链再刷副本">
+                    <input type="radio" name="fb_mode" value="3" /> 先领后刷
+                </label>
+                <label class="ml10 tips" data-text="此模式，表示只领项链不刷副本">
+                    <input type="radio" name="fb_mode" value="4" /> 只领不刷
+                </label>
+            </div>
+        </fieldset>
+
+        <div id="agreement-content" style="display:none;">
+            <div class="c0 b c">用户服务协议</div>
+            <ul>
+                <li>一、本程序仅用于游戏副本通关教学演示使用，以便用户更好的理解游戏副本玩法和注意细节，禁止用作非法用途牟取不当利益，若有异议请立即关闭和删除。</li>
+                <li>二、为避免玩法教学软件恶意使用，你需申请获得免费使用权；若认可本教学，可进行打赏，以激励作者开发更优秀的作品；如有异议，请立即关闭删除掉。</li>
+                <li>三、本程序不包含木马、病毒；不读取任何用户敏感信息、不上传任何用户信息；但会读取角色基础数值，更好的与用户交互；如存在非议，请停止使用和删除。</li>
+                <li>四、本程序会不定时更新游戏副本玩法教学。</li>
+                <li>五、本程序禁止随意复制、修改、散播，由此造成后果自行承担。</li>
+                <li>六、本程序最终解释权归作者所有，可能会不时修改此协议。</li>
+            </ul>
+        </div>
+        <div class="r pr10">
+            <!--
+        <a class="my_ck_box tips vb" data-text="如果勾选, 那么启动登入前会关闭所有模拟器；若不能打开模拟器时, 请勾选" href="javascript:;">
+            <i class="layui-icon" data-key="close_mnq"></i> 关闭模拟器
+        </a>
+        -->
+            <!--layui-btn-primary 无背景按钮-->
+            <label style="font-style:normal;vertical-align:bottom;">
+                <input id="agreement" type="checkbox" checked />我同意<a href="javascript:ShowAgreement();" style="color:#FFB800;">用户协议</a>并已仔细阅读
+            </label>
+            <button id="start_btn" type="button" class="layui-btn layui-btn-normal" onclick="Start()">启动</button>
+            <button id="auto_play_btn" type="button" class="layui-btn layui-btn-primary" onclick="AutoPlay()">自动登号</button>
+        </div>
+    </main>
+    <script>
+        ShowTool("r_tool", 0);
+        //SetMarginLeftClientWidth('log');
+        //SetClientHeight("log_ul", 50);
+        var log_i = 0;
+        /*
+        setInterval(function () {
+           // AddLog('log_ul', ++log_i, "c0");
+        }, 800);
+        */
+        for (var i = 1; i < 106; i++) {
+            AddTableRow("table_1", 0, i);
+            AddLog("log_ul", i, "green");
+        }
+        // FillTableRow("table_1", 0, 0);
+
+        AddLog("log_ul", "日记信息");
+        UpdateStatusText("加载完成.", 2);
+
+        SetSetting('qiazhu', 168);
+        */
+    </script>
+    <div id="xxx"></div>
+    <script>
+        var colors = [
+            0xFF8EC140, 0xFF8FC241, 0xFF51900E, 0xFF4C8B09, 0xFF5B8112, 0xFF608617, 0xFF84971A, 0xFFAEC144, 0xFFA7BB1B, 0xFFC3D737,
+            0xFF7BB32C, 0xFF72AA23, 0xFF4D9213, 0xFF4B9011, 0xFF548617, 0xFF57891A, 0xFF6F8F10, 0xFFABCB4C, 0xFFAFCF22, 0xFFCDED40,
+            0xFF5C940D, 0xFF528A03, 0xFF4A8F10, 0xFF4F9415, 0xFF57891A, 0xFF5C8E1F, 0xFF6A8A0B, 0xFF99B93A, 0xFFA9C91C, 0xFFBBDB2E,
+            0xFF4E8800, 0xFF548E06, 0xFF4C8E12, 0xFF56981C, 0xFF568B17, 0xFF5C911D, 0xFF618B05, 0xFF7CA620, 0xFFA3C914, 0xFFABD11C,
+            0xFF488200, 0xFF609A12, 0xFF4F9115, 0xFF5A9C20, 0xFF558A16, 0xFF5A8F1B, 0xFF608A04, 0xFF709A14, 0xFFABD11C, 0xFFB2D823,
+            0xFF508906, 0xFF548D0A, 0xFF5A9018, 0xFF5D931B, 0xFF609513, 0xFF5C910F, 0xFF629000, 0xFF6E9C08, 0xFF90B503, 0xFFA6CB19,
+            0xFF548D0A, 0xFF558E0B, 0xFF568C14, 0xFF568C14, 0xFF5C910F, 0xFF609513, 0xFF689602, 0xFF6C9A06, 0xFF86AB00, 0xFF9BC00E,
+            0xFF558B0F, 0xFF558B0F, 0xFF609018, 0xFF62921A, 0xFF69A10A, 0xFF76AE17, 0xFF7DB70D, 0xFF7DB70D, 0xFF90BA0E, 0xFF9BC519,
+            0xFF568C10, 0xFF588E12, 0xFF609018, 0xFF6D9D25, 0xFF7BB31C, 0xFF88C029, 0xFF94CE24, 0xFF9BD52B, 0xFFA4CE22, 0xFF9EC81C,
+            0xFF5A8B18, 0xFF5C8D1A, 0xFF538A0B, 0xFF6DA425, 0xFF79C211, 0xFF7CC514, 0xFF88D611, 0xFF98E621, 0xFF9AD32C, 0xFF82BB14
+        ];
+        var colors2 = [
+            0xFFAAB5C1, 0xFF9DA7B4, 0xFFA8B4C0, 0xFFB9C8D1, 0xFFA4B7C6, 0xFF667EA0, 0xFF3B5484, 0xFF4D6590, 0xFF8EA3B9, 0xFF8297B8,
+            0xFF6E87A9, 0xFF657C9F, 0xFF748BAC, 0xFFC3DAE5, 0xFFD2E8EE, 0xFF819ABC, 0xFF3E5C94, 0xFF5A76A5, 0xFFC3D7E2, 0xFFC2D4E5,
+            0xFF476497, 0xFF37588E, 0xFF486598, 0xFFB3CDDE, 0xFFC8DDE6, 0xFF7B97BE, 0xFF4164A5, 0xFF5E7EB3, 0xFFC3D7E2, 0xFFC8DAEA,
+            0xFF8FA2C1, 0xFF6E89B0, 0xFF7F96BA, 0xFFC7DDE9, 0xFFB4CCDD, 0xFF829FC6, 0xFF6B8CC3, 0xFF7999C9, 0xFFC5DAE6, 0xFFC9DBEC,
+            0xFFD6EBF3, 0xFFD5E9F2, 0xFFD1E6F1, 0xFFCCE2EE, 0xFF9BBBDF, 0xFFABC6E6, 0xFFD9EAF6, 0xFFC6DCEF, 0xFFD0E3F3, 0xFFCBE0F2,
+            0xFF638ABC, 0xFF6189BB, 0xFF4B77B1, 0xFF4471AD, 0xFF4B7ABC, 0xFF80A5D7, 0xFFC5DBEF, 0xFFE7F5FB, 0xFFE8F6FB, 0xFFCBE0F2,
+            0xFF668DBD, 0xFFDBEEF5, 0xFF95B5D4, 0xFF5680B6, 0xFF4374B9, 0xFF4679C3, 0xFF5382C7, 0xFF7FA4D7, 0xFFD5E7F5, 0xFFCBE0F2,
+            0xFF7398C4, 0xFFE4F6FA, 0xFFAAC6DE, 0xFFA1BFDA, 0xFFB6CFE6, 0xFF88ABDA, 0xFF5685C9, 0xFF91B3DD, 0xFFD8EAF6, 0xFFC2D9EE,
+            0xFF95B4D8, 0xFFE7F8FB, 0xFFDDF0F6, 0xFFD5EAF3, 0xFFDCEDF7, 0xFFCADEF1, 0xFFB8D0EB, 0xFFCCDFF2, 0xFFD4E5F4, 0xFFACC5E1,
+            0xFFA1BFDF, 0xFFE8F9FC, 0xFFB2CDE6, 0xFF8AACD6, 0xFFB5CDE7, 0xFFDBEAF7, 0xFFC0D5ED, 0xFFA6C0E2, 0xFFD5E5F4, 0xFF95B1D5,
+        ]
+
+        for (var y = 0; y < 10; y++) {
+            var html = '<div>';
+            for (var x = 0; x < 10; x++) {
+                var color = (colors2[y * 10 + x] & 0x00ffffff).toString(16).toUpperCase();
+                //color = 'FF5050';
+                html += "<span style='color:#" + color + "'>0xFF" + color +"</span> ";
+            }
+            html += "</div>";
+            //$('#xxx').append(html);
+        }
+
+        RandTitle();
+    </script>
+</body>
+</html>

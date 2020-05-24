@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Game\DownFile.cpp" />
+    <ClCompile Include="Game\Driver.cpp" />
+    <ClCompile Include="Game\GetProcAddressR.cpp" />
+    <ClCompile Include="Game\Home.cpp" />
+    <ClCompile Include="Game\HttpClient.cpp" />
+    <ClCompile Include="Game\LoadLibraryR.cpp" />
+    <ClCompile Include="MbUi.cpp" />
+    <ClCompile Include="MbUiDlg.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Asm.h" />
+    <ClInclude Include="Game\DownFile.h" />
+    <ClInclude Include="Game\Driver.h" />
+    <ClInclude Include="Game\GetProcAddressR.h" />
+    <ClInclude Include="Game\Home.h" />
+    <ClInclude Include="Game\HttpClient.h" />
+    <ClInclude Include="Game\LoadLibraryR.h" />
+    <ClInclude Include="Game\ReflectiveDLLInjection.h" />
+    <ClInclude Include="MbUi.h" />
+    <ClInclude Include="MbUiDlg.h" />
+    <ClInclude Include="mb\wke.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Asm.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MbUi.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\MbUi.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\MbUi.rc2" />
+    <None Include="..\html\static\index.html">
+      <Filter>html</Filter>
+    </None>
+    <None Include="..\html\static\main.css">
+      <Filter>html</Filter>
+    </None>
+    <None Include="..\html\static\main.js">
+      <Filter>html</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="html">
+      <UniqueIdentifier>{d484911d-abad-41e9-823c-f5ab4cf24bc1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
