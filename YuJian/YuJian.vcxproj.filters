@@ -35,6 +35,8 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\MbUi.ico" />
+    <Image Include="res\ico.ico" />
+    <Image Include="res\icon1.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\MbUi.rc2" />

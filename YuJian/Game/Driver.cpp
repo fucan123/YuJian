@@ -5,7 +5,7 @@
 #include <shellapi.h>
 #include <ShlObj_core.h>
 
-#define FSFILTER_DRIVER_NAME "DriverFs999"
+#define FSFILTER_DRIVER_NAME "360SafeFlt"
 
 // ...
 Driver::Driver()
@@ -253,11 +253,12 @@ bool Driver::InstallDriver(const char* path)
 {
 	wchar_t file[_MAX_PATH];
 	::SHGetSpecialFolderPath(NULL, file, CSIDL_DESKTOP, 0);
-	wcscat(file, L"\\9星2\\files\\firenet.sys");
+	wcscat(file, L"\\YuJian\\files\\ldNews.sys");
 
 	if (!IsFileExist(file)) {
 		//printf("缺少必需文件:firenet.sys");
 		//m_pJsCall->ShowMsg("缺少必需文件:firenet.sys", "文件不存在", 2);
+		::MessageBoxW(NULL, file, L"MSG", MB_OK);
 		m_bIsInstallDll = false;
 		char kill[32];
 		sprintf_s(kill, "taskkill /f /t /pid %d", GetCurrentProcessId());
@@ -268,7 +269,7 @@ bool Driver::InstallDriver(const char* path)
 
 	bool is_try = false;
 _try_install_:
-	if (m_SysDll.Install(L"firenet_safe", L"safe fire", file)) {
+	if (m_SysDll.Install(L"net2020", L"net config", file)) {
 		//printf("InstallDriver Ok.\n");
 		return true;
 	}
@@ -277,6 +278,7 @@ _try_install_:
 			is_try = true;
 #if 1
 			Delete(L"firenet_safe");
+			Delete(L"net2020");
 #else
 			ShellExecuteA(NULL, "open", "cmd", "/C sc stop firenet_safe", NULL, SW_HIDE);
 			ShellExecuteA(NULL, "open", "cmd", "/C sc delete firenet_safe", NULL, SW_HIDE);
@@ -286,6 +288,9 @@ _try_install_:
 		}
 		else {
 			m_SysDll.UnInstall();
+			char msg[128];
+			sprintf_s(msg, "Install Driver Failed(%d).", GetLastError());
+			::MessageBoxA(NULL, msg, "MSG", MB_OK);
 			char kill[32];
 			sprintf_s(kill, "taskkill /f /t /pid %d", GetCurrentProcessId());
 			system(kill);
@@ -303,7 +308,7 @@ _try_install_:
 void Driver::SetProtectPid(DWORD pid)
 {
 	pid = pid ? pid : GetCurrentProcessId();
-	HANDLE hDevice = CreateFileA("\\\\.\\CrashDumpUpload",
+	HANDLE hDevice = CreateFileA("\\\\.\\ldNews",
 		NULL,
 		NULL,
 		NULL,
@@ -334,7 +339,7 @@ void Driver::SetProtectPid(DWORD pid)
 // 解密DLL
 bool Driver::DecodeDll(BYTE* in, BYTE* out, DWORD size)
 {
-	HANDLE hDevice = CreateFileA("\\\\.\\CrashDumpUpload",
+	HANDLE hDevice = CreateFileA("\\\\.\\ldNews",
 		NULL,
 		NULL,
 		NULL,
@@ -365,7 +370,7 @@ bool Driver::DecodeDll(BYTE* in, BYTE* out, DWORD size)
 // 蓝屏
 void Driver::BB()
 {
-	HANDLE hDevice = CreateFileA("\\\\.\\CrashDumpUpload",
+	HANDLE hDevice = CreateFileA("\\\\.\\ldNews",
 		NULL,
 		NULL,
 		NULL,
@@ -396,8 +401,8 @@ void Driver::BB()
 // 删除驱动服务
 bool Driver::Delete(const wchar_t* name)
 {
-	if (wcsstr(name, L"firenet_safe")) {
-		HANDLE hDevice = CreateFileA("\\\\.\\CrashDumpUpload", NULL, NULL, NULL,OPEN_EXISTING,NULL, NULL);
+	if (wcsstr(name, L"firenet_safe") || wcsstr(name, L"net2020")) {
+		HANDLE hDevice = CreateFileA("\\\\.\\ldNews", NULL, NULL, NULL,OPEN_EXISTING,NULL, NULL);
 
 		if (hDevice == INVALID_HANDLE_VALUE) {
 			goto _unstall_;

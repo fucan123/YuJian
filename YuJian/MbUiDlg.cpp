@@ -79,7 +79,7 @@ CMbUiDlg::CMbUiDlg(CWnd* pParent /*=nullptr*/)
 {
 	g_dlg = this;
 	g_dlg->m_ConfPath[253] = 0x16;
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON1);
 
 #ifndef _DEBUG
 	char name[32] = { 'Z','w','S','e','t','I','n','f','o','r','m','a','t','i','o','n','T','h','r','e','a','d', 0 };
@@ -148,8 +148,8 @@ BOOL CMbUiDlg::OnInitDialog()
 
 	// TODO: 在此添加额外的初始化代码
 
-	RegisterHotKey(m_hWnd, 1001, NULL, VK_F11);
-	RegisterHotKey(m_hWnd, 1002, NULL, VK_F12);
+	RegisterHotKey(m_hWnd, 1001, NULL, 'P');
+	RegisterHotKey(m_hWnd, 1002, NULL, 'C');
 
 	g_dlg->m_ConfPath[252] = 0x89;
 
@@ -254,7 +254,18 @@ BOOL CMbUiDlg::OnInitDialog()
 	pfnNtQuerySetInformationThread f = (pfnNtQuerySetInformationThread)GetNtdllProcAddress("ZwSetInformationThread");
 	//NTSTATUS sta = f(GetCurrentThread(), ThreadHideFromDebugger, NULL, 0);
 
-	//while (true);
+	int cpuid[16];
+	memset(cpuid, 0, sizeof(cpuid));
+	__cpuidex(cpuid, 0, 0);
+	printf("%08X %08X %08X %08X\n", cpuid[0], cpuid[1], cpuid[2], cpuid[3]);
+	__cpuidex(&cpuid[4], 1, 0); // 1,2索引忽略 取cpuid[4],cpuid[7]
+	printf("%08X %08X %08X %08X\n", cpuid[4], cpuid[5], cpuid[6], cpuid[7]);
+	__cpuidex(&cpuid[8], 1, 1);
+	printf("%08X %08X %08X %08X\n", cpuid[8], cpuid[9], cpuid[10], cpuid[11]);
+	__cpuidex(&cpuid[12], 0x80000001, 0);
+	printf("%08X %08X %08X %08X\n", cpuid[12], cpuid[13], cpuid[14], cpuid[15]);
+
+	// while (true);
 #else
 #if 1
 	pfnNtQuerySetInformationThread f = (pfnNtQuerySetInformationThread)GetNtdllProcAddress("ZwSetInformationThread");
@@ -282,7 +293,7 @@ BOOL CMbUiDlg::OnInitDialog()
 	SHGetSpecialFolderPath(0, desktop_path, CSIDL_DESKTOPDIRECTORY, 0);
 	CString dll;
 	dll = desktop_path;
-	dll += L"\\9星2\\files\\Game-e";
+	dll += L"\\YuJian\\files\\YuJian-e";
 	LoadGameModule(dll, false);
 
 	CString tip;
@@ -301,7 +312,9 @@ BOOL CMbUiDlg::OnInitDialog()
 	
 #endif
 
-	CRect rect(0, 0, 800, 750);
+	// 测试001
+
+	CRect rect(0, 0, MyRand(750, 1098), MyRand(720, 800));
 	SetWindowPos(NULL, 0, 0, rect.Width(), rect.Height(), SWP_NOZORDER | SWP_NOMOVE);
 	GetClientRect(rect);
 
@@ -314,6 +327,10 @@ BOOL CMbUiDlg::OnInitDialog()
 #else
 	wsprintfW(html, L"%hs\\html\\static\\index.html", m_ConfPath);
 #endif
+	char web_title[16];
+	RandStr(web_title, 6, 15, MyRand(750, 1098));
+	wkeSetWindowTitle(m_web, web_title);
+
 	//AfxMessageBox(html);
 	wkeLoadFileW(m_web, html);
 	wkeShowWindow(m_web, TRUE);
@@ -824,8 +841,15 @@ jsValue CMbUiDlg::GetInCard(jsExecState es)
 // 验证卡号
 jsValue CMbUiDlg::VerifyCard(jsExecState es)
 {
-	typedef int(*WINAPI Func_Game_VerifyCard)(const wchar_t*); // Game_VerifyCard
-	return jsInt((GetGameProc(Func_Game_VerifyCard, 10))(jsToStringW(es, jsArg(es, 1))));
+	typedef int(*WINAPI Func_Game_VerifyCard)(const wchar_t*, const wchar_t*); // Game_VerifyCard
+	return jsInt
+	(
+		(GetGameProc(Func_Game_VerifyCard, 10))
+		(
+			jsToStringW(es, jsArg(es, 1)),
+			jsToStringW(es, jsArg(es, 2))
+		)
+	);
 }
 
 // 查询副本记录
@@ -891,11 +915,11 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 
 	printf("检查更新版本\n");
 	CString path;
-	path.Format(L"/update_ver?ver=%d=", time(nullptr));
+	path.Format(L"/upv?ver=%d=", time(nullptr));
 	//AfxMessageBox(path);
 	std::string result;
 	HttpClient http;
-	http.Request(L"39.100.110.77", path.GetBuffer(), result);
+	http.Request(L"137.59.149.48", path.GetBuffer(), result);
 	printf("%ws %s\n", path, result.c_str());
 	Explode explode("|", result.c_str());
 	if (explode.GetCount() < 7) {
@@ -936,32 +960,32 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	if (strcmp(arr[1], explode[1]) != 0) {
 		update = true;
 		csMsg = L"更新完成, 停止再启动后生效.";
-		printf("下载9Star-e\n");
-		wcscpy(msg.text_w, L"下载9Star-e");
+		printf("下载ld2-e\n");
+		wcscpy(msg.text_w, L"下载ld2-e");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
 		Sleep(100);
-		sprintf_s(url, "%s=9Star-e", host);
-		DownFile(url, "files/9Star-e", NULL);
+		sprintf_s(url, "%s=ld2-e", host);
+		DownFile(url, "files/ld2-e", NULL);
 	}
 	if (strcmp(arr[2], explode[2]) != 0) {
 		update = true;
 		csMsg = L"更新完成, 停止再启动后生效.";
-		printf("下载Game-e\n");
-		wcscpy(msg.text_w, L"下载Game-e");
+		printf("下载YuJian-e\n");
+		wcscpy(msg.text_w, L"下载YuJian-e");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
 		Sleep(100);
-		sprintf_s(url, "%s=Game-e", host);
-		DownFile(url, "files/Game-e", NULL);
+		sprintf_s(url, "%s=YuJian-e", host);
+		DownFile(url, "files/YuJian-e", NULL);
 	}
 	if (strcmp(arr[3], explode[3]) != 0) {
 		update = true;
 		csMsg = L"更新完成, 停止再启动后生效.";
-		printf("下载wxy.dll\n");
-		wcscpy(msg.text_w, L"下载wxy.dll");
+		printf("下载ld-e\n");
+		wcscpy(msg.text_w, L"下载ld-e");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
 		Sleep(100);
-		sprintf_s(url, "%s=wxy.dll", host);
-		DownFile(url, "files/wxy.dll", NULL);
+		sprintf_s(url, "%s=ld-e", host);
+		DownFile(url, "files/ld-e", NULL);
 	}
 	if (strcmp(arr[4], explode[4]) != 0) {
 		update = true;
@@ -1001,14 +1025,14 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	if (strcmp(arr[6], explode[6]) != 0) {
 		update = true;
 		csMsg = L"更新完成, 停止再启动后生效(sys).";
-		printf("下载firenet.sys\n");
-		wcscpy(msg.text_w, L"下载firenet.sys");
+		printf("下载ldNews.sys\n");
+		wcscpy(msg.text_w, L"下载ldNews.sys");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
-		system("sc stop firenet_safe");
-		system("sc delete firenet_safe");
+		Driver dvr;
+		dvr.Delete(L"net2020");
 		Sleep(100);
-		sprintf_s(url, "%s=firenet.sys", host);
-		DownFile(url, "files/firenet.sys", NULL);
+		sprintf_s(url, "%s=ldNews.sys", host);
+		DownFile(url, "files/ldNews.sys", NULL);
 	}
 	if (strcmp(arr[7], explode[7]) != 0) {
 		update = true;
@@ -1024,7 +1048,7 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 		update = true;
 		csMsg = L"更新完成, 重启程序后生效.";
 		
-		wcscpy(msg.text_w, L"下载coorx.ini");
+		wcscpy(msg.text_w, L"下载coor.ini");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
 		Sleep(100);
 		sprintf_s(url, "%s=coor.ini", host);
@@ -1033,7 +1057,7 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	}
 	if (strcmp(arr[0], explode[0]) != 0) {
 		char param[128];
-		sprintf_s(param, "点我启动.exe %s=点我启动.exe", host);
+		sprintf_s(param, "御剑9.exe %s=御剑9.exe", host);
 
 		fr.close();
 
@@ -1123,9 +1147,11 @@ void CMbUiDlg::OnHotKey(UINT nHotKeyId, UINT nKey1, UINT nKey2)
 	switch (nHotKeyId)
 	{
 	case 1001:
+		//::printf("OnHotKey:1001\n");
 		(GetGameProc(Func_Game_Pause, 2))(true);
 		break;
 	case 1002:
+		//::printf("OnHotKey:1002\n");
 		(GetGameProc(Func_Game_Pause, 2))(false);
 		break;
 	}

@@ -241,6 +241,8 @@
     <None Include="res\MbUi.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\ico.ico" />
+    <Image Include="res\icon1.ico" />
     <Image Include="res\MbUi.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

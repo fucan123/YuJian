@@ -24,6 +24,8 @@ public:
 public:
 	virtual BOOL InitInstance();
 
+	void ModifyWebWndClass(const char* path);
+
 // 实现
 
 	DECLARE_MESSAGE_MAP()

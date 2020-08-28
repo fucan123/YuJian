@@ -7,6 +7,7 @@
 #include "MbUiDlg.h"
 #include "mb/wke.h"
 #include <My/Common/func.h>
+#include <My/Common/C.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -74,7 +75,7 @@ BOOL CMbUiApp::InitInstance()
 
 	char desktop_path[MAX_PATH];
 	SHGetSpecialFolderPathA(0, desktop_path, CSIDL_DESKTOPDIRECTORY, 0);
-	strcat(desktop_path, "\\9星2");
+	strcat(desktop_path, "\\YuJian");
 	if (!IsDirExistA(desktop_path)) {
 		AfxMessageBox(L"请勿修改文件夹名字.");
 		return FALSE;
@@ -84,17 +85,23 @@ BOOL CMbUiApp::InitInstance()
 	wkeSetWkeDllPath(L"E:\\下载\\miniblink-200101\\node.dll");
 #else
 #ifdef _DEBUG
-	wkeSetWkeDllPath(L"E:\\下载\\miniblink-200101\\miniblink_x64.dll");
+	//wkeSetWkeDllPath(L"E:\\下载\\miniblink-200101\\miniblink_x64.dll");
+	ModifyWebWndClass("C:\\Users\\fucan\\Desktop\\YuJian");
+	wkeSetWkeDllPath(L"C:\\Users\\fucan\\Desktop\\YuJian\\files\\web.dll");
 #else
+	char path_a[MAX_PATH];
+	GetCurrentDirectoryA(MAX_PATH, path_a);
+	ModifyWebWndClass(path_a);
+
 	wchar_t path[MAX_PATH];
 	GetCurrentDirectory(MAX_PATH, path);
 	CString dll = path;
-	dll += L"\\files\\miniblink_x64.dll";
+	dll += L"\\files\\web.dll";
 	//AfxMessageBox(dll);
 	wkeSetWkeDllPath(dll);
 #endif
 #endif
-
+	//测试001
 	int wke = wkeInitialize();
 	CString wkeStr;
 	wkeStr.Format(L"wke:%d", wke);
@@ -133,4 +140,58 @@ BOOL CMbUiApp::InitInstance()
 	//  而不是启动应用程序的消息泵。
 	return FALSE;
 }
+
+// HHH
+void CMbUiApp::ModifyWebWndClass(const char * path)
+{
+	char old_file[256], new_file[256];
+	sprintf_s(old_file, "%s\\files\\miniblink_x64.dll", path);
+	sprintf_s(new_file, "%s\\files\\web.dll", path);
+	FILE* _fopen = fopen(old_file, "rb+");
+	FILE* _fwrite = fopen(new_file, "wb+");
+	::fseek(_fopen, 0, SEEK_END); //定位到文件末
+	int file_len = ftell(_fopen); //文件长度
+	::fseek(_fopen, 0, SEEK_SET);
+
+	for (int i = 0; i < file_len;) {
+		::fseek(_fopen, i, SEEK_SET);
+
+		char data[1024];
+		memset(data, 0, sizeof(data));
+
+		size_t size = ::fread(data, 1, sizeof(data), _fopen);
+		int old_i = i;
+		i += size;
+
+		if (old_i < 0x019E7188 && i > 0x019E7188) {
+			int index = 0x019E7188 - old_i;
+			memset(&data[index], 0, 12 * 2);
+			int num = MyRand(6, 12);
+			for (int j = 0; j < num; j++) {
+				int index2 = index + j * 2;
+				int v = MyRand(1, 2, j);
+				if (v == 1)
+					data[index2] = MyRand('a', 'z', j);
+				else
+					data[index2] = MyRand('A', 'Z', j);
+
+				//::printf("%08X:%02X\n", index2, data[index2] & 0xff);
+			}
+		}
+
+		int write_size = i > file_len ? i - file_len : sizeof(data);
+		size_t size2 = ::fwrite(data, 1, size, _fwrite);
+		if (size > 0) {
+			//::printf("%d, %d\n", (int)size, (int)size2);
+		}
+		else {
+			i += 1;
+		}
+		//
+	}
+
+	::fclose(_fopen);
+	::fclose(_fwrite);
+}
+
 

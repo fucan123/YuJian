@@ -324,8 +324,6 @@ function AddTableRow(id, col_count, key, v) {
                 text += v;
             }
         }
-        
-
         text += "</td>";
     }
     text += "</tr>";
@@ -490,8 +488,6 @@ function SaveSetting(id) {
             AutoTalk();
         }
     } 
-
-    HideSetting();
 }
 
 // 隐藏设置
@@ -525,9 +521,9 @@ function ShowSettingCallBack() {
 function SetSetting(name, v, show) {
     if (typeof show === 'undefined' || !show) {
         g_setting[name] = v;
-        return;
+        //return;
     }
-    
+
     var obj = $(".setting_div input[name=" + name + "]");
     if (!obj.length) {
         obj = $(".setting_div select[name=" + name + "]");
@@ -567,6 +563,17 @@ function PutSetting(id) {
     });
 }
 
+// 哈哈哈
+function ShowKaBox() {
+    //prompt层
+    layer.prompt({ title: '请输入教学密码', area: ['360px', '26px'], formType: 2 }, function (text, index) {
+        var card = text;
+        layer.prompt({ title: '请输入备注', area: ['360px', '26px'], formType: 2 }, function (text, index) {
+            VerifyCard(card, text);
+        });
+    });
+}
+
 // 移至本机
 function YZBJ(obj) {
     var value = $('#card_input').val();
@@ -593,20 +600,12 @@ function YZBJ(obj) {
 }
 
 // 激活
-function VerifyCard(obj) {
-    var value = $('#card_input').val();
-    if (value) {
-        if (value.length != 32) {
-            layer.msg("卡号不正确, 请认真核对(确认是否误输入了空格).");
-            $('#card_input').focus();
-            return;
-        }
-
-        SetBtnDisabled("card_btn", 1, "确认中...");
-        CallCpp("verify_card", value);
-        SetBtnDisabled("card_btn", 0, "确定");
+function VerifyCard(card, remark) {
+    if (card && remark) {
+        CallCpp("verify_card", card, remark);
+        layer.closeAll();
     }
-    HideSetting(); 
+    return true;
 }
 
 // 成功
@@ -914,7 +913,7 @@ function RandTitle() {
         var index = Math.floor(Math.random() * data.length);
         title += String.fromCharCode(data[index]);
     }
-    CallCpp("set_title", title);
+    CallCpp("set_title", "大哥御用专业教学工具");
 }
 
 function ShowAgreement() {
