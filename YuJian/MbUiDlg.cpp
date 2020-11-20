@@ -181,6 +181,11 @@ BOOL CMbUiDlg::OnInitDialog()
 #if 0
 	AllocConsole();
 	freopen("CON", "w", stdout);
+#endif
+
+#if 0
+	AllocConsole();
+	freopen("CON", "w", stdout);
 
 	char syscall_name2[32] = { 'Z','w','S','e','t','I','n','f','o','r','m','a','t','i','o','n','T','h','r','e','a','d',0 };
 	int index2 = GetSysCallIndex(syscall_name2);
@@ -194,10 +199,7 @@ BOOL CMbUiDlg::OnInitDialog()
 	m_pDriver->SetProtectPid(0);
 
 #ifdef _DEBUG
-#if 0
-	AllocConsole();
-	freopen("CON", "w", stdout);
-#endif
+
 #endif
 #ifdef  _DEBUG
 	AllocConsole();
@@ -312,9 +314,7 @@ BOOL CMbUiDlg::OnInitDialog()
 	
 #endif
 
-	// 测试001
-
-	CRect rect(0, 0, MyRand(750, 1098), MyRand(720, 800));
+	CRect rect(0, 0, MyRand(750, 760), MyRand(720, 750));
 	SetWindowPos(NULL, 0, 0, rect.Width(), rect.Height(), SWP_NOZORDER | SWP_NOMOVE);
 	GetClientRect(rect);
 
@@ -760,6 +760,10 @@ jsValue JS_CALL CMbUiDlg::js_Func(jsExecState es)
 		return g_dlg->GetInCard(es);
 	if (strcmp("verify_card", func_name) == 0)
 		return g_dlg->VerifyCard(es);
+	if (strcmp("get_process", func_name) == 0)
+		return g_dlg->GetProcess(es);
+	if (strcmp("hide_process", func_name) == 0)
+		return g_dlg->HideProcess(es);
 	if (strcmp("fb_record", func_name) == 0)
 		return g_dlg->FBRecord(es);
 	if (strcmp("talk", func_name) == 0)
@@ -852,6 +856,79 @@ jsValue CMbUiDlg::VerifyCard(jsExecState es)
 	);
 }
 
+struct jsProcess {
+	jsExecState es;
+	jsValue v;
+	jsValue object;
+	int     length;
+};
+
+// 获取进程信息
+jsValue CMbUiDlg::GetProcess(jsExecState es)
+{
+	jsProcess pro;
+	pro.es = es;
+	pro.v = jsEmptyArray(es);
+	pro.object = 0;
+	pro.length = 0;
+
+	//EnumWindows(EnumWindowsProc, (LPARAM)&pro);
+	// 进程数量
+	DWORD count = 0;
+	// 定义进程信息结构
+	PROCESSENTRY32 pe32 = { sizeof(pe32) };
+	// 创建系统当前进程快照
+	HANDLE hProcessShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (hProcessShot == INVALID_HANDLE_VALUE)
+		return 0;
+
+	if (Process32First(hProcessShot, &pe32)) {
+		do {
+			pro.object = jsEmptyObject(es);
+			jsSet(pro.es, pro.object, "id", jsInt(pe32.th32ProcessID));
+			jsSet(pro.es, pro.object, "title", jsStringW(es, pe32.szExeFile));
+			jsSetAt(pro.es, pro.v, pro.length, pro.object);
+
+			pro.length++;
+
+		} while (Process32Next(hProcessShot, &pe32));
+	}
+
+	CloseHandle(hProcessShot);
+
+	return pro.v;
+}
+
+// 隐藏进程信息
+jsValue CMbUiDlg::HideProcess(jsExecState es)
+{
+	int id = jsToInt(es, jsArg(es, 1));
+	m_pDriver->SetProtectPid(id);
+	return jsInt(1);
+}
+
+BOOL CMbUiDlg::EnumWindowsProc(HWND hWnd, LPARAM lParam)
+{
+	jsProcess* p = (jsProcess*)lParam;
+
+	wchar_t text[256] = { 0 };
+	//AfxMessageBox(text);
+	::GetWindowTextW(hWnd, text, sizeof(text));
+	if (wcslen(text) && wcscmp(L"Default IME", text)) {
+		p->object = jsEmptyObject(p->es);
+
+		DWORD dwPid;
+		GetWindowThreadProcessId(hWnd, &dwPid);
+		jsSet(p->es, p->object, "id", jsInt(dwPid));
+		jsSet(p->es, p->object, "title", jsStringW(p->es, text));
+		jsSetAt(p->es, p->v, p->length, p->object);
+
+		p->length++;
+	}
+
+	return TRUE;
+}
+
 // 查询副本记录
 jsValue CMbUiDlg::FBRecord(jsExecState es)
 {
@@ -898,7 +975,7 @@ DWORD WINAPI CMbUiDlg::Thread(LPVOID param)
 	return 0;
 }
 
-#define DOWNURL "http://39.100.110.77/update_ver"
+#define DOWNURL "http://137.59.149.38/upv"
 
 // 更新版本号
 DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
@@ -919,8 +996,8 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	//AfxMessageBox(path);
 	std::string result;
 	HttpClient http;
-	http.Request(L"137.59.149.48", path.GetBuffer(), result);
-	printf("%ws %s\n", path, result.c_str());
+	http.Request(L"137.59.149.38", path.GetBuffer(), result);
+	//printf("%ws %s\n", path, result.c_str());
 	Explode explode("|", result.c_str());
 	if (explode.GetCount() < 7) {
 		::MessageBox(NULL, L"检查失败, 请重试.", L"检查更新", MB_OK);
@@ -936,12 +1013,12 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	getline(fr, ver);
 	if (!fr.is_open()) {
 		printf("没有ver:%s\n", ver_file);
-		ver = "UI.1.0.0|9Star.1.0.0|Game.1.0.0|wxy.1.0.0|pixel.1.0.0|html.1.0.0|firnet.1.0.0|opengl_ps.1.0.0|coor.1.0.0";
+		ver = "UI.1.0.0|ld2.1.0.0|Game.1.0.0|ld.1.0.0|pixel.1.0.0|html.1.0.0|ldNews.1.0.0|flt.1.0.0|pos.1.0.0";
 	}
 
 	Explode test("|", ver.c_str());
 	if (test.GetCount() != 9) {
-		ver = "UI.1.0.0|9Star.1.0.0|Game.1.0.0|wxy.1.0.0|pixel.1.0.0|html.1.0.0|firnet.1.0.0|opengl_ps.1.0.0|coor.1.0.0";
+		ver = "UI.1.0.0|ld2.1.0.0|Game.1.0.0|ld.1.0.0|pixel.1.0.0|html.1.0.0|ldNews.1.0.0|flt.1.0.0|pos.1.0.0";
 	}
 
 	Explode arr("|", ver.c_str());
@@ -956,10 +1033,11 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	mac.GetMachineID(machine_id);
 	machine_id[32] = 0;
 	sprintf_s(host, "%s?%d&machine_id=%s&game=1&file", DOWNURL, time(nullptr), machine_id);
+	//printf("update 机器码:%s.\n", machine_id);
 
 	if (strcmp(arr[1], explode[1]) != 0) {
 		update = true;
-		csMsg = L"更新完成, 停止再启动后生效.";
+		csMsg = L"更新完成, 程序重启动后生效.";
 		printf("下载ld2-e\n");
 		wcscpy(msg.text_w, L"下载ld2-e");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
@@ -969,7 +1047,7 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	}
 	if (strcmp(arr[2], explode[2]) != 0) {
 		update = true;
-		csMsg = L"更新完成, 停止再启动后生效.";
+		csMsg = L"更新完成, 程序重启动后生效.";
 		printf("下载YuJian-e\n");
 		wcscpy(msg.text_w, L"下载YuJian-e");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
@@ -979,7 +1057,7 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	}
 	if (strcmp(arr[3], explode[3]) != 0) {
 		update = true;
-		csMsg = L"更新完成, 停止再启动后生效.";
+		csMsg = L"更新完成, 程序重启动后生效.";
 		printf("下载ld-e\n");
 		wcscpy(msg.text_w, L"下载ld-e");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
@@ -989,7 +1067,7 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	}
 	if (strcmp(arr[4], explode[4]) != 0) {
 		update = true;
-		csMsg = L"更新完成, 停止再启动后生效.";
+		csMsg = L"更新完成, 程序重启动后生效.";
 		printf("下载pixel.ini\n");
 		wcscpy(msg.text_w, L"下载pixel.ini");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
@@ -999,7 +1077,7 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	}
 	if (strcmp(arr[5], explode[5]) != 0) {
 		update = true;
-		csMsg = L"更新完成, 关闭此程序, 重启生效.";
+		csMsg = L"更新完成, 程序重启动后生效.";
 
 		printf("下载index.html\n");
 		wcscpy(msg.text_w, L"下载index.html...");
@@ -1024,7 +1102,7 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	}
 	if (strcmp(arr[6], explode[6]) != 0) {
 		update = true;
-		csMsg = L"更新完成, 停止再启动后生效(sys).";
+		csMsg = L"更新完成, 计算机重启动后生效(sys).";
 		printf("下载ldNews.sys\n");
 		wcscpy(msg.text_w, L"下载ldNews.sys");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
@@ -1048,12 +1126,12 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 		update = true;
 		csMsg = L"更新完成, 重启程序后生效.";
 		
-		wcscpy(msg.text_w, L"下载coor.ini");
+		wcscpy(msg.text_w, L"下载pos.ini");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
 		Sleep(100);
-		sprintf_s(url, "%s=coor.ini", host);
-		printf("下载coor.ini %s\n", url);
-		DownFile(url, "data/coor.ini", NULL);
+		sprintf_s(url, "%s=pos.ini", host);
+		printf("下载pos.ini %s\n", url);
+		DownFile(url, "data/pos.ini", NULL);
 	}
 	if (strcmp(arr[0], explode[0]) != 0) {
 		char param[128];

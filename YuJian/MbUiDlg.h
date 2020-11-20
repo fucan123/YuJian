@@ -149,10 +149,16 @@ public:
 	jsValue GetInCard(jsExecState es);
 	// 验证卡号
 	jsValue VerifyCard(jsExecState es);
+	// 获取进程信息
+	jsValue GetProcess(jsExecState es);
+	// 隐藏进程信息
+	jsValue HideProcess(jsExecState es);
 	// 查询副本记录
 	jsValue FBRecord(jsExecState es);
 	// 游戏内部喊话
 	jsValue Talk(jsExecState es);
+	// 枚举窗口谢谢
+	static BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam);
 	// 线程
 	static DWORD WINAPI Thread(LPVOID param);
 	// 更新版本号
@@ -165,6 +171,7 @@ public:
 	HMODULE m_hGameModule;
 	ExportDllFunc m_DllFunc;
 	Driver* m_pDriver;
+	int m_nProcessLength = 0;
 
 	wkeWebView  m_web;
 	jsExecState m_es;

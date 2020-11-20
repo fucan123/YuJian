@@ -101,7 +101,6 @@ BOOL CMbUiApp::InitInstance()
 	wkeSetWkeDllPath(dll);
 #endif
 #endif
-	//测试001
 	int wke = wkeInitialize();
 	CString wkeStr;
 	wkeStr.Format(L"wke:%d", wke);

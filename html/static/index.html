@@ -16,6 +16,24 @@
     <div id="full" style="display:none;position:absolute; background:#000000; z-index:998;width:100%;opacity:0.5;filter: alpha(opacity=50);"></div>
     <div id="tips_box" class="tips_box"></div>
     <div style="width:500px;margin:0 auto;">
+        <div id="process_list" class="more_data" style="display:none;position:absolute;z-index:999;">
+            <div class="layui-tab layui-tab-card" style="background:#ffffff;">
+                <div style="position:absolute;margin:10px 490px;z-index:999;">
+                    <a href="javascript:HideProcess();" class="close"><i class="layui-icon">&#x1006;</i></a>
+                </div>
+                <ul class="layui-tab-title">
+                    <li class="layui-this">进程列表</li>
+                </ul>
+                <div class="layui-tab-content scrool_y" style="width:500px;height:450px;">
+                    <div class="layui-tab-item layui-show">
+                        <div id="process_list2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="width:500px;margin:0 auto;">
         <div id="more_data" class="more_data" style="display:none;position:absolute;z-index:999;">
             <div class="layui-tab layui-tab-card" style="background:#ffffff;">
                 <div style="position:absolute;margin:10px 490px;z-index:999;">
@@ -61,8 +79,10 @@
         </span>
     </div>
     <main>
+
         <div class="recharge" style="">
-            <a href="javascript:MoreData(500);" class="blue fz12" style="color:blue;">详细数据</a>
+            <a href="javascript:GetProcess(500);" class="red f12" style="color:darkblue;">隐藏进程</a>
+            <a href="javascript:MoreData(500);" class="blue fz12 ml10" style="color:blue;">详细数据</a>
             <span class="ml5">
                 超时: <b id="fb_reopen_count" class="green">0</b>
             </span>
@@ -71,6 +91,7 @@
             </span>
             <a href="javascript:;" onclick="ShowKaBox();" style="margin-left:20px;">输入教学密码</a>
             <span id="card_date" class="ml5 c9">未激活</span>
+            <span id="card_no" class="c6"></span>
         </div>
         <div class="recharge mt10" style="display:none;">
             <!--启动时长:  <span id="start_time" class="c0">0小时00分00秒</span>，-->
@@ -86,7 +107,7 @@
             <div class="layui-tab-content">
                 <div class="layui-tab-item layui-show">
                     <!--<fieldset class="layui-elem-field site-demo-button">-->
-                        <!--<legend class="fz14"><i class="layui-icon">&#xe66f;</i> 帐号列表</legend>-->
+                    <!--<legend class="fz14"><i class="layui-icon">&#xe66f;</i> 帐号列表</legend>-->
                     <table class="table">
                         <colgroup>
                             <col width="50" />
@@ -205,38 +226,38 @@
                 </div>
             </div>
         </div>
-        <!--
-        <fieldset class="layui-elem-field site-demo-button">
-            <legend class="fz14"><i class="layui-icon">&#xe620;</i> 设置</legend>
-            <div class="setting" id="setting_btn">
-                <a href="javascript:;" onclick="ShowSetting('basic_setting', 300);">基本设置</a> |
-                <!--<a href="javascript:;" onclick="ShowSetting('talk_setting', 300);">喊话设置</a> |
-                <a href="javascript:;" id="update_btn" class="update_btn" onclick="UpdateVer(this)">
-                    检查更新<i class="layui-icon">&#xe607;</i>
-                </a> |
-                <a href="javascript:;" id="step_btn" class="step_btn tips" onclick="UpdateStep(this)"
-                    data-text="会同步服务器上面的通用执行流程，但会覆盖现有的，你需要手动自己先备份好.">
-                    同步流程<i class="layui-icon">&#xe607;</i>
-                </a>
-            </div>
-            <div class="hr setting"></div>
-            <div class="setting_radio">
-                <span class="t">副本模式:</span>
-                <label class="ml10 tips" data-text="此模式，表示每个号登入刷副本之前会先领项链">
-                    <input type="radio" name="fb_mode" value="1" checked /> 边领边刷
-                </label>
-                <label class="ml10 tips" data-text="此模式，表示每个号只刷副本不领项链">
-                    <input type="radio" name="fb_mode" value="2" /> 不领只刷
-                </label>
-                <label class="ml10 tips" data-text="此模式，表示全部号先领完项链再刷副本">
-                    <input type="radio" name="fb_mode" value="3" /> 先领后刷
-                </label>
-                <label class="ml10 tips" data-text="此模式，表示只领项链不刷副本">
-                    <input type="radio" name="fb_mode" value="4" /> 只领不刷
-                </label>
-            </div>
-        </fieldset>
-        -->
+
+        <!--<fieldset class="layui-elem-field site-demo-button">
+        <legend class="fz14"><i class="layui-icon">&#xe620;</i> 设置</legend>
+        <div class="setting" id="setting_btn">
+            <a href="javascript:;" onclick="ShowSetting('basic_setting', 300);">基本设置</a> |
+            <a href="javascript:;" onclick="ShowSetting('talk_setting', 300);">喊话设置</a> |
+        <a href="javascript:;" id="update_btn" class="update_btn" onclick="UpdateVer(this)">
+            检查更新<i class="layui-icon">&#xe607;</i>
+        </a> |
+        <a href="javascript:;" id="step_btn" class="step_btn tips" onclick="UpdateStep(this)"
+           data-text="会同步服务器上面的通用执行流程，但会覆盖现有的，你需要手动自己先备份好.">
+            同步流程<i class="layui-icon">&#xe607;</i>
+        </a>
+        </div>
+        <div class="hr setting"></div>
+        <div class="setting_radio">
+            <span class="t">副本模式:</span>
+            <label class="ml10 tips" data-text="此模式，表示每个号登入刷副本之前会先领项链">
+                <input type="radio" name="fb_mode" value="1" checked /> 边领边刷
+            </label>
+            <label class="ml10 tips" data-text="此模式，表示每个号只刷副本不领项链">
+                <input type="radio" name="fb_mode" value="2" /> 不领只刷
+            </label>
+            <label class="ml10 tips" data-text="此模式，表示全部号先领完项链再刷副本">
+                <input type="radio" name="fb_mode" value="3" /> 先领后刷
+            </label>
+            <label class="ml10 tips" data-text="此模式，表示只领项链不刷副本">
+                <input type="radio" name="fb_mode" value="4" /> 只领不刷
+            </label>
+        </div>
+        </fieldset>-->
+
         <div id="agreement-content" style="display:none;">
             <div class="c0 b c">用户服务协议</div>
             <ul>
@@ -255,13 +276,16 @@
     </a>
     -->
             <!--layui-btn-primary 无背景按钮-->
+            <a href="javascript:;" id="update_btn" class="update_btn" onclick="UpdateVer(this)" style="color:darkblue;">
+                检查更新<i class="layui-icon">&#xe607;</i>
+            </a>
             <label style="font-style:normal;vertical-align:bottom;">
                 <input id="agreement" type="checkbox" checked />我同意<a href="javascript:ShowAgreement();" style="color:#FFB800;">用户协议</a>并已仔细阅读
             </label>
             <!--
-            <button id="start_btn" type="button" class="layui-btn layui-btn-normal" onclick="Start()">启动</button>
-            <button id="auto_play_btn" type="button" class="layui-btn layui-btn-primary" onclick="AutoPlay()">自动登号</button>
-            -->
+    <button id="start_btn" type="button" class="layui-btn layui-btn-normal" onclick="Start()">启动</button>
+    <button id="auto_play_btn" type="button" class="layui-btn layui-btn-primary" onclick="AutoPlay()">自动登号</button>
+    -->
         </div>
     </main>
     <script>
@@ -274,7 +298,7 @@
         setInterval(function () {
            // AddLog('log_ul', ++log_i, "c0");
         }, 800);
-       
+
         for (var i = 1; i < 106; i++) {
             AddTableRow("table_1", 0, i);
             AddLog("log_ul", i, "green");
@@ -319,7 +343,7 @@
             for (var x = 0; x < 10; x++) {
                 var color = (colors2[y * 10 + x] & 0x00ffffff).toString(16).toUpperCase();
                 //color = 'FF5050';
-                html += "<span style='color:#" + color + "'>0xFF" + color +"</span> ";
+                html += "<span style='color:#" + color + "'>0xFF" + color + "</span> ";
             }
             html += "</div>";
             //$('#xxx').append(html);

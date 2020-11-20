@@ -276,6 +276,9 @@ function SetClass(id, cla, rm_cla) {
 
 // 设置元素文字
 function SetText(id, text) {
+    if (id === 'card_no')
+        text = '(' + text + ')';
+
     $("#" + id).html(text);
     if (id == 'fb_count') {
         $('#fb_count_log').html(text);
@@ -676,6 +679,40 @@ function AddZero(v) {
     return v;
 }
 
+function GetProcess(h) {
+    $("#full").show();
+    $("#process_list").css("margin-top", ((client_height - h) / 2 - 50) + "px");
+    $("#process_list").show();
+
+    var data = CallCpp("get_process");
+    var text = '';
+    for (var i in data) {
+        var title = data[i].title;
+        if (title.length > 50) {
+            title = title.substr(0, 50) + '...';
+        }
+        text += '<div class="num">';
+        text += '<span class="c3">' + title + '</span>';
+        text += '<span class="cb">(' + data[i].id + ')</span>';
+        text += '<a href="javascript:OKProcess(' + data[i].id + ');" class="ml5">[隐藏]</a></div> ';
+        text += '</div>';
+    }
+
+    $('#process_list2').html(text);
+}
+
+function OKProcess(id) {
+    if (CallCpp("hide_process", parseInt(id))) {
+        ShowMsg("设置成功了", "信息", 1);
+        HideProcess();
+    }
+}
+
+function HideProcess() {
+    $("#full").hide();
+    $("#process_list").hide();
+}
+
 var fb_records = [];
 // 详细数据
 function MoreData(h) {
@@ -913,7 +950,7 @@ function RandTitle() {
         var index = Math.floor(Math.random() * data.length);
         title += String.fromCharCode(data[index]);
     }
-    CallCpp("set_title", "大哥御用专业教学工具");
+    CallCpp("set_title", title);
 }
 
 function ShowAgreement() {

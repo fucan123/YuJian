@@ -203,10 +203,14 @@ body .layui-elem-field legend {
     border-bottom: 1px #e0e0e0 dotted;
 }
 
+.more_data .num:hover {
+    background:#eeeeee;
+}
+
 .more_data .num .d {
-    float:right;
-    color:#666666;
-    font-size:12px;
+    float: right;
+    color: #666666;
+    font-size: 12px;
 }
 
 .more_data .num a {
