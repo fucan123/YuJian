@@ -292,10 +292,10 @@ BOOL CMbUiDlg::OnInitDialog()
 #endif
 #else
 	WCHAR desktop_path[MAX_PATH];
-	SHGetSpecialFolderPath(0, desktop_path, CSIDL_DESKTOPDIRECTORY, 0);
+	GetCurrentDirectory(MAX_PATH, desktop_path);
 	CString dll;
 	dll = desktop_path;
-	dll += L"\\YuJian\\files\\YuJian-e";
+	dll += L"\\files\\YuJian-e";
 	LoadGameModule(dll, false);
 
 	CString tip;

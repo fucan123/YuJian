@@ -76,7 +76,7 @@ BOOL CMbUiApp::InitInstance()
 	char desktop_path[MAX_PATH];
 	SHGetSpecialFolderPathA(0, desktop_path, CSIDL_DESKTOPDIRECTORY, 0);
 	strcat(desktop_path, "\\YuJian");
-	if (!IsDirExistA(desktop_path)) {
+	if (0 && !IsDirExistA(desktop_path)) {
 		AfxMessageBox(L"请勿修改文件夹名字.");
 		return FALSE;
 	}

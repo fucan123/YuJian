@@ -251,9 +251,15 @@ BOOL Driver::DeleteFsFilter()
 // 安装驱动
 bool Driver::InstallDriver(const char* path)
 {
+#ifdef _DEBUG
 	wchar_t file[_MAX_PATH];
 	::SHGetSpecialFolderPath(NULL, file, CSIDL_DESKTOP, 0);
 	wcscat(file, L"\\YuJian\\files\\ldNews.sys");
+#else
+	wchar_t file[_MAX_PATH];
+	::GetCurrentDirectory(_MAX_PATH, file);
+	wcscat(file, L"\\files\\ldNews.sys");
+#endif
 
 	if (!IsFileExist(file)) {
 		//printf("缺少必需文件:firenet.sys");
