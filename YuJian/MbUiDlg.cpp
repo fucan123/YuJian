@@ -1135,7 +1135,7 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	}
 	if (strcmp(arr[0], explode[0]) != 0) {
 		char param[128];
-		sprintf_s(param, "御剑9.exe %s=御剑9.exe", host);
+		sprintf_s(param, "蜡笔小新.exe %s=蜡笔小新.exe", host);
 
 		fr.close();
 
