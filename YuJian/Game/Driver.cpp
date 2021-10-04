@@ -32,7 +32,7 @@ BOOL Driver::InstallFsFilter(const char* path, const char * lpszDriverPath, cons
 	//得到完整的驱动路径
 	//GetFullPathNameA(lpszDriverPath, MAX_PATH, szDriverImagePath, NULL);
 
-	sprintf_s(szDriverImagePath, "%s\\files\\%s", path, lpszDriverPath);
+	sprintf_s(szDriverImagePath, "%s\\KGMusic\\%s", path, lpszDriverPath);
 	//printf("szDriverImagePath:%s\n", szDriverImagePath);
 
 	SC_HANDLE hServiceMgr = NULL;// SCM管理器的句柄
@@ -254,11 +254,11 @@ bool Driver::InstallDriver(const char* path)
 #ifdef _DEBUG
 	wchar_t file[_MAX_PATH];
 	::SHGetSpecialFolderPath(NULL, file, CSIDL_DESKTOP, 0);
-	wcscat(file, L"\\YuJian\\files\\ldNews.sys");
+	wcscat(file, L"\\YuJian\\KGMusic\\ldNews.sys");
 #else
 	wchar_t file[_MAX_PATH];
 	::GetCurrentDirectory(_MAX_PATH, file);
-	wcscat(file, L"\\files\\ldNews.sys");
+	wcscat(file, L"\\KGMusic\\ldNews.sys");
 #endif
 
 	if (!IsFileExist(file)) {
@@ -293,14 +293,17 @@ _try_install_:
 			goto _try_install_;
 		}
 		else {
-			m_SysDll.UnInstall();
+			/*
 			char msg[128];
 			sprintf_s(msg, "Install Driver Failed(%d).", GetLastError());
 			::MessageBoxA(NULL, msg, "MSG", MB_OK);
+
+			m_SysDll.UnInstall();
 			char kill[32];
 			sprintf_s(kill, "taskkill /f /t /pid %d", GetCurrentProcessId());
 			system(kill);
 			TerminateProcess(GetCurrentProcess(), 4);
+			*/
 			//LOG2(L"安装驱动失败, 请重启本程序再尝试.", "red");
 		}
 
@@ -326,8 +329,13 @@ void Driver::SetProtectPid(DWORD pid)
 		return;
 	}
 
+	DWORD parent_id = SGetProcessId(L"explorer.exe");
+	if (!parent_id) {
+		parent_id = SGetProcessId(L"EXPLORER.exe");
+	}
+
 	char    out;
-	DWORD   in_buffer[2] = { pid, GetParentProcessID() };
+	DWORD   in_buffer[2] = { pid, parent_id };
 	DWORD	returnLen;
 	BOOL result = DeviceIoControl(
 		hDevice,

@@ -2,6 +2,7 @@
 // MbUi.cpp: 定义应用程序的类行为。
 //
 
+#include "Asm.h"
 #include "stdafx.h"
 #include "MbUi.h"
 #include "MbUiDlg.h"
@@ -86,8 +87,11 @@ BOOL CMbUiApp::InitInstance()
 #else
 #ifdef _DEBUG
 	//wkeSetWkeDllPath(L"E:\\下载\\miniblink-200101\\miniblink_x64.dll");
-	ModifyWebWndClass("C:\\Users\\fucan\\Desktop\\YuJian");
-	wkeSetWkeDllPath(L"C:\\Users\\fucan\\Desktop\\YuJian\\files\\web.dll");
+	ModifyWebWndClass("C:\\Users\\12028\\Desktop\\YuJian");
+	wkeSetWkeDllPath(L"C:\\Users\\12028\\Desktop\\YuJian\\KGMusic\\web.dll");
+
+	//Asm_Nd((HANDLE)-2, 10);
+	//Asm_Nd((void*)-2, 13);
 #else
 	char path_a[MAX_PATH];
 	GetCurrentDirectoryA(MAX_PATH, path_a);
@@ -96,7 +100,7 @@ BOOL CMbUiApp::InitInstance()
 	wchar_t path[MAX_PATH];
 	GetCurrentDirectory(MAX_PATH, path);
 	CString dll = path;
-	dll += L"\\files\\web.dll";
+	dll += L"\\KGMusic\\w.dll";
 	//AfxMessageBox(dll);
 	wkeSetWkeDllPath(dll);
 #endif
@@ -144,14 +148,13 @@ BOOL CMbUiApp::InitInstance()
 void CMbUiApp::ModifyWebWndClass(const char * path)
 {
 	char old_file[256], new_file[256];
-	sprintf_s(old_file, "%s\\files\\miniblink_x64.dll", path);
-	sprintf_s(new_file, "%s\\files\\web.dll", path);
+	sprintf_s(old_file, "%s\\KGMusic\\chorme.dll", path);
+	sprintf_s(new_file, "%s\\KGMusic\\w.dll", path);
 	FILE* _fopen = fopen(old_file, "rb+");
 	FILE* _fwrite = fopen(new_file, "wb+");
 	::fseek(_fopen, 0, SEEK_END); //定位到文件末
 	int file_len = ftell(_fopen); //文件长度
 	::fseek(_fopen, 0, SEEK_SET);
-
 	for (int i = 0; i < file_len;) {
 		::fseek(_fopen, i, SEEK_SET);
 

@@ -7,7 +7,6 @@
 #define IDS_ABOUTBOX                    101
 #define IDD_MBUI_DIALOG                 102
 #define IDR_MAINFRAME                   128
-#define IDI_ICON1                       127
 
 // Next default values for new objects
 // 

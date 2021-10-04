@@ -62,7 +62,7 @@ struct my_msg {
 }
 
 #define COPY_MSG_W(msg, _op, _id, _text_w, _cla, _value) { \
-    ZeroMemory(&msg, sizeof(my_msg)); \
+    ::ZeroMemory(&msg, sizeof(my_msg)); \
     msg.op = _op; \
     if (_id) strcpy(msg.id, _id); \
 	if (_text_w) wcscpy(msg.text_w, _text_w); \

@@ -918,17 +918,17 @@ function AutoPlay() {
     }
 
     var index;
-    if ($('#auto_play_btn').html() == '×Ô¶¯µÇºÅ') {
+    if ($('#auto_play_btn').html() == '¡ú×Ô¶¯µÇºÅ¡û') {
         if (!g_install_dll && !Start())
             return;
 
-        $('#auto_play_btn').html('Í£Ö¹µÇºÅ');
+        $('#auto_play_btn').html('¡ûÍ£Ö¹µÇºÅ¡ú');
         index = -1;
     }
     else {
         if (g_install_dll) Start();
 
-        $('#auto_play_btn').html('×Ô¶¯µÇºÅ');
+        $('#auto_play_btn').html('¡ú×Ô¶¯µÇºÅ¡û');
         index = -2;
     }
     CallCpp("open_game", index, 0);

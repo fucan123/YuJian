@@ -270,11 +270,9 @@
             </ul>
         </div>
         <div class="r pr10">
-            <!--
-    <a class="my_ck_box tips vb" data-text="如果勾选, 那么启动登入前会关闭所有模拟器；若不能打开模拟器时, 请勾选" href="javascript:;">
-        <i class="layui-icon" data-key="close_mnq"></i> 关闭模拟器
-    </a>
-    -->
+            <a style="margin-right:10px;" class="my_ck_box tips vb" data-text="只会登录小号, 不会做其他的任何东西." href="javascript:;">
+                <i class="layui-icon" data-key="login_only_small"></i> 只登小号
+            </a>
             <!--layui-btn-primary 无背景按钮-->
             <a href="javascript:;" id="update_btn" class="update_btn" onclick="UpdateVer(this)" style="color:darkblue;">
                 检查更新<i class="layui-icon">&#xe607;</i>
@@ -284,8 +282,8 @@
             </label>
             <!--
     <button id="start_btn" type="button" class="layui-btn layui-btn-normal" onclick="Start()">启动</button>
-    <button id="auto_play_btn" type="button" class="layui-btn layui-btn-primary" onclick="AutoPlay()">自动登号</button>
-    -->
+                -->
+            <a id="auto_play_btn" class="ap" href="javascript:;" onclick="AutoPlay()">→自动登号←</a>
         </div>
     </main>
     <script>

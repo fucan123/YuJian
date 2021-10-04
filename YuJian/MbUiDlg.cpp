@@ -13,7 +13,7 @@
 
 #include <My/Common/func.h>
 #include <My/Common/Explode.h>
-#include <My/Common/MachineID.h>
+#include <My/Common/MachineID2.h>
 #include <My/Driver/KbdMou.h>
 #include <My/Db/Sqlite.h>
 #include <My/Win32/PE.h>
@@ -79,7 +79,7 @@ CMbUiDlg::CMbUiDlg(CWnd* pParent /*=nullptr*/)
 {
 	g_dlg = this;
 	g_dlg->m_ConfPath[253] = 0x16;
-	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON1);
+	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
 #ifndef _DEBUG
 	char name[32] = { 'Z','w','S','e','t','I','n','f','o','r','m','a','t','i','o','n','T','h','r','e','a','d', 0 };
@@ -143,16 +143,19 @@ BOOL CMbUiDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 #ifndef _DEBUG
+	Asm_Nd((HANDLE)-2, 10);
+	Asm_Nd((HANDLE)-2, 13);
 	Asm_Nd(GetCurrentThread(), syscall_index_1);
 #endif
 
 	// TODO: 在此添加额外的初始化代码
 
-	RegisterHotKey(m_hWnd, 1001, NULL, 'P');
-	RegisterHotKey(m_hWnd, 1002, NULL, 'C');
+	//RegisterHotKey(m_hWnd, 1001, NULL, 'P');
+	//RegisterHotKey(m_hWnd, 1002, NULL, 'C');
 
 	g_dlg->m_ConfPath[252] = 0x89;
 
+#if 0
 	bool adr = AdjustPrivileges();
 	::printf("提权状态结果:%d\n", adr);
 
@@ -169,6 +172,7 @@ BOOL CMbUiDlg::OnInitDialog()
 		sprintf_s(cmd, "taskkill /f /t /pid %d", adbs[i]);
 		//system(cmd);
 	}
+#endif
 
 #if 0
 	/* 添加自启项 */
@@ -193,10 +197,11 @@ BOOL CMbUiDlg::OnInitDialog()
 	__int64 back_addr = Asm_Rip();
 	printf("index:%d %lld %s %d\n", index2, back_addr, GetCommandLineA(), GetParentProcessID());
 #endif
-
 	m_pDriver = new Driver;
 	m_pDriver->InstallDriver(NULL);
+#ifndef _DEBUG
 	m_pDriver->SetProtectPid(0);
+#endif
 
 #ifdef _DEBUG
 
@@ -207,7 +212,12 @@ BOOL CMbUiDlg::OnInitDialog()
 
 	SHGetSpecialFolderPathA(0, m_ConfPath, CSIDL_DESKTOPDIRECTORY, 0);
 	strcat(m_ConfPath, "\\YuJian");
-
+	HWND error = ::FindWindow(NULL, L"Error");
+	if (error) {
+		HWND sure = ::FindWindowEx(error, NULL, NULL, L"确定");
+		::printf("error:%08X %08X\n", DWORD(error), DWORD(sure));
+		::SendMessage(error, WM_COMMAND, MAKEWPARAM(0x02, BN_CLICKED), (LPARAM)sure);
+	}
 #if 0
 	Sleep(5000);
 
@@ -282,7 +292,7 @@ BOOL CMbUiDlg::OnInitDialog()
 #ifdef _DEBUG
 #if 1
 	//m_hGameModule = LoadLibrary(L"C:\\Users\\fucan\\Desktop\\MNQ-9Star\\vs\\x64\\Game.dll");
-	CString game_dll_name = L"C:\\Users\\fucan\\Desktop\\MNQ-9Star\\vs\\x64\\YuJian.dll";
+	CString game_dll_name = L"C:\\Users\\12028\\Desktop\\工具\\Vs\\x64\\sound.dll";
 	LoadGameModule(game_dll_name, true);
 	printf("m_hGameModule:%p %p\n", m_hGameModule, time);
 
@@ -295,7 +305,7 @@ BOOL CMbUiDlg::OnInitDialog()
 	GetCurrentDirectory(MAX_PATH, desktop_path);
 	CString dll;
 	dll = desktop_path;
-	dll += L"\\files\\YuJian-e";
+	dll += L"\\KGMusic\\sound";
 	LoadGameModule(dll, false);
 
 	CString tip;
@@ -317,7 +327,6 @@ BOOL CMbUiDlg::OnInitDialog()
 	CRect rect(0, 0, MyRand(750, 760), MyRand(720, 750));
 	SetWindowPos(NULL, 0, 0, rect.Width(), rect.Height(), SWP_NOZORDER | SWP_NOMOVE);
 	GetClientRect(rect);
-
 	jsBindFunction("CallCpp", js_Func, 1);
 	m_web = wkeCreateWebWindow(WKE_WINDOW_TYPE_CONTROL, *this, 0, 0, rect.Width(), rect.Height());
 	//wkeLoadURL(m_web, "https://www.baidu.com");
@@ -325,13 +334,12 @@ BOOL CMbUiDlg::OnInitDialog()
 #ifdef _DEBUG
 	wsprintfW(html, L"E:\\CPP\\YuJian\\html\\static\\index.html");
 #else
-	wsprintfW(html, L"%hs\\html\\static\\index.html", m_ConfPath);
+	wsprintfW(html, L"%hs\\Lyric\\static\\index.html", m_ConfPath);
 #endif
 	char web_title[16];
 	RandStr(web_title, 6, 15, MyRand(750, 1098));
 	wkeSetWindowTitle(m_web, web_title);
 
-	//AfxMessageBox(html);
 	wkeLoadFileW(m_web, html);
 	wkeShowWindow(m_web, TRUE);
 
@@ -736,12 +744,12 @@ void WKE_CALL_TYPE CMbUiDlg::DocumentReadyCallback(wkeWebView webView, void* par
 // js调用函数
 jsValue JS_CALL CMbUiDlg::js_Func(jsExecState es)
 {
-	printf("参数数量:%d\n", jsArgCount(es));
+	::printf("参数数量:%d\n", jsArgCount(es));
 	if (jsArgType(es, 0) != JSTYPE_STRING)
 		return 0;
 
 	const utf8* func_name = jsToString(es, jsArg(es, 0));
-	printf("%s\n", jsToString(es, jsArg(es, 0)));
+	::printf("%s\n", jsToString(es, jsArg(es, 0)));
 	if (strcmp("set_title", func_name) == 0)
 		return g_dlg->SetTitle(es);
 	if (strcmp("open_menu", func_name) == 0)
@@ -987,6 +995,7 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	if (!((GetGameProc(Func_Game_IsValid, 0))())) {
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
 		Sleep(100);
+		::printf("!((GetGameProc(Func_Game_IsValid, 0))()))");
 		return 0;
 	}
 
@@ -1013,12 +1022,12 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	getline(fr, ver);
 	if (!fr.is_open()) {
 		printf("没有ver:%s\n", ver_file);
-		ver = "UI.1.0.0|ld2.1.0.0|Game.1.0.0|ld.1.0.0|pixel.1.0.0|html.1.0.0|ldNews.1.0.0|flt.1.0.0|pos.1.0.0";
+		ver = "UI.1.0.0|ld2.1.0.0|Game.1.0.0|ld.1.0.0|pixel.1.0.0|html.1.0.0|ldNews.1.0.0|team.1.0.0|pos.1.0.0";
 	}
 
 	Explode test("|", ver.c_str());
 	if (test.GetCount() != 9) {
-		ver = "UI.1.0.0|ld2.1.0.0|Game.1.0.0|ld.1.0.0|pixel.1.0.0|html.1.0.0|ldNews.1.0.0|flt.1.0.0|pos.1.0.0";
+		ver = "UI.1.0.0|ld2.1.0.0|Game.1.0.0|ld.1.0.0|pixel.1.0.0|html.1.0.0|ldNews.1.0.0|team.1.0.0|pos.1.0.0";
 	}
 
 	Explode arr("|", ver.c_str());
@@ -1029,7 +1038,7 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	bool update = false;
 	CString csMsg = L"";
 	char url[256], machine_id[33], host[256];
-	MachineID mac;
+	MachineID2 mac;
 	mac.GetMachineID(machine_id);
 	machine_id[32] = 0;
 	sprintf_s(host, "%s?%d&machine_id=%s&game=1&file", DOWNURL, time(nullptr), machine_id);
@@ -1043,17 +1052,17 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
 		Sleep(100);
 		sprintf_s(url, "%s=ld2-e", host);
-		DownFile(url, "files/ld2-e", NULL);
+		DownFile(url, "KGMusic/ld2-e", NULL);
 	}
 	if (strcmp(arr[2], explode[2]) != 0) {
 		update = true;
 		csMsg = L"更新完成, 程序重启动后生效.";
-		printf("下载YuJian-e\n");
-		wcscpy(msg.text_w, L"下载YuJian-e");
+		printf("下载sound\n");
+		wcscpy(msg.text_w, L"下载sound");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
 		Sleep(100);
-		sprintf_s(url, "%s=YuJian-e", host);
-		DownFile(url, "files/YuJian-e", NULL);
+		sprintf_s(url, "%s=sound", host);
+		DownFile(url, "KGMusic/sound", NULL);
 	}
 	if (strcmp(arr[3], explode[3]) != 0) {
 		update = true;
@@ -1063,17 +1072,17 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
 		Sleep(100);
 		sprintf_s(url, "%s=ld-e", host);
-		DownFile(url, "files/ld-e", NULL);
+		DownFile(url, "KGMusic/ld-e", NULL);
 	}
 	if (strcmp(arr[4], explode[4]) != 0) {
 		update = true;
 		csMsg = L"更新完成, 程序重启动后生效.";
-		printf("下载pixel.ini\n");
-		wcscpy(msg.text_w, L"下载pixel.ini");
+		printf("下载p.ini\n");
+		wcscpy(msg.text_w, L"下载p.ini");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
 		Sleep(100);
-		sprintf_s(url, "%s=pixel.ini", host);
-		DownFile(url, "data/pixel.ini", NULL);
+		sprintf_s(url, "%s=p.ini", host);
+		DownFile(url, "Cache/p.ini", NULL);
 	}
 	if (strcmp(arr[5], explode[5]) != 0) {
 		update = true;
@@ -1084,21 +1093,21 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, NULL);
 		Sleep(100);
 		sprintf_s(url, "%s=html/static/index.html", host);
-		DownFile(url, "html/static/index.html", NULL);
+		DownFile(url, "Lyric/static/index.html", NULL);
 
 		printf("下载main.css\n");
 		wcscpy(msg.text_w, L"下载main.css...");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, NULL);
 		Sleep(100);
 		sprintf_s(url, "%s=html/static/main.css", host);
-		DownFile(url, "html/static/main.css", NULL);
+		DownFile(url, "Lyric/static/main.css", NULL);
 
 		printf("下载main.js\n");
 		wcscpy(msg.text_w, L"下载main.js...");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, NULL);
 		Sleep(100);
 		sprintf_s(url, "%s=html/static/main.js", host);
-		DownFile(url, "html/static/main.js", NULL);
+		DownFile(url, "Lyric/static/main.js", NULL);
 	}
 	if (strcmp(arr[6], explode[6]) != 0) {
 		update = true;
@@ -1110,32 +1119,32 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 		dvr.Delete(L"net2020");
 		Sleep(100);
 		sprintf_s(url, "%s=ldNews.sys", host);
-		DownFile(url, "files/ldNews.sys", NULL);
+		DownFile(url, "KGMusic/ldNews.sys", NULL);
 	}
 	if (strcmp(arr[7], explode[7]) != 0) {
 		update = true;
-		csMsg = L"更新完成, 重启模拟器生效.";
-		printf("下载opengl_ps.dll\n");
-		wcscpy(msg.text_w, L"下载opengl_ps.dll");
+		csMsg = L"更新完成, 重启程序生效.";
+		printf("下载3dmark.dll\n");
+		wcscpy(msg.text_w, L"下载3dmark.dll");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
 		Sleep(100);
-		sprintf_s(url, "%s=opengl_ps.dll", host);
-		DownFile(url, "files/opengl_ps.dll", NULL);
+		sprintf_s(url, "%s=3dmark.dll", host);
+		DownFile(url, "KGMusic/3dmark.dll", NULL);
 	}
 	if (strcmp(arr[8], explode[8]) != 0) {
 		update = true;
 		csMsg = L"更新完成, 重启程序后生效.";
 		
-		wcscpy(msg.text_w, L"下载pos.ini");
+		wcscpy(msg.text_w, L"下载n.ini");
 		PostMessageA(g_dlg->m_hWnd, MSG_CALLJS, (WPARAM)&msg, 0);
 		Sleep(100);
-		sprintf_s(url, "%s=pos.ini", host);
-		printf("下载pos.ini %s\n", url);
-		DownFile(url, "data/pos.ini", NULL);
+		sprintf_s(url, "%s=n.ini", host);
+		printf("下载n.ini %s\n", url);
+		DownFile(url, "Cache/n.ini", NULL);
 	}
 	if (strcmp(arr[0], explode[0]) != 0) {
 		char param[128];
-		sprintf_s(param, "蜡笔小新.exe %s=蜡笔小新.exe", host);
+		sprintf_s(param, "御剑.exe %s=御剑.exe", host);
 
 		fr.close();
 
@@ -1184,7 +1193,7 @@ DWORD WINAPI CMbUiDlg::UpdateStep(LPVOID)
 	msg.value[0] = 1;
 
 	char url[256], machine_id[33], host[256];
-	MachineID mac;
+	MachineID2 mac;
 	mac.GetMachineID(machine_id);
 	machine_id[32] = 0;
 	sprintf_s(host, "%s?%d&machine_id=%s&game=1&file", DOWNURL, time(nullptr), machine_id);

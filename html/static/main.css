@@ -302,6 +302,12 @@ body .layui-elem-field legend {
     font-weight:bold;
     color:#000000;
 }
+.ap {
+    color:blue;
+}
+.ap:hover {
+    color:black;
+}
 
 .r {
     text-align: right;
