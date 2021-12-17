@@ -293,6 +293,7 @@ BOOL CMbUiDlg::OnInitDialog()
 #if 1
 	//m_hGameModule = LoadLibrary(L"C:\\Users\\fucan\\Desktop\\MNQ-9Star\\vs\\x64\\Game.dll");
 	CString game_dll_name = L"C:\\Users\\12028\\Desktop\\工具\\Vs\\x64\\sound.dll";
+	//game_dll_name = L"C:\\Users\\12028\\Desktop\\工具\\Vs\\x64\\sound-e";
 	LoadGameModule(game_dll_name, true);
 	printf("m_hGameModule:%p %p\n", m_hGameModule, time);
 
@@ -733,7 +734,7 @@ void WKE_CALL_TYPE CMbUiDlg::DocumentReadyCallback(wkeWebView webView, void* par
 
 		ExportDllFunc** sp = (ExportDllFunc**)&g_dlg->m_ConfPath[230];
 		*sp = (ExportDllFunc*)&g_dlg->m_DllFunc;
-		//printf("ExportDllFunc:%p\n", *sp);
+		printf("ExportDllFunc:%p\n", *sp);
 		g_dlg->m_ConfPath[250] = 0xCB;
 		Game_Init(g_dlg->m_hWnd, g_dlg->m_ConfPath);
 	}
@@ -1031,6 +1032,8 @@ DWORD WINAPI CMbUiDlg::UpdateVer(LPVOID)
 	}
 
 	Explode arr("|", ver.c_str());
+
+	::printf("%s\n%s\n", result.c_str(), ver.c_str());
 
 	msg.op = MSG_SETTEXT;
 	msg.status_text = 1;
