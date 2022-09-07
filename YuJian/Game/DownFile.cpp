@@ -2,7 +2,7 @@
 
 DownProgress DownloadProgress::dpFunc = nullptr;
 
-bool DownFile(const char* url, const char * file, DownProgress func)
+bool DownFile(const char* url, const char* file, DownProgress func)
 {
 	DownloadProgress progress;
 	progress.dpFunc = func;
